@@ -53,7 +53,7 @@ az vm extension set \
     --vm-name nw1-cl-0 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/SAP-ASCS-ERS/main/softlinks"],"commandToExecute": "./softlinks.sh"}' 
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/SAP-ASCS-ERS/main/softlinks.sh"],"commandToExecute": "./softlinks.sh"}' 
 
 
 # Create managed disk
