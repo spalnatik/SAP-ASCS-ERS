@@ -53,14 +53,6 @@ az vm extension set \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
     --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/SAP-ASCS-ERS/main/data.sh"],"commandToExecute": "./data.sh"}' 
-	
-
-az vm extension set \
-    --resource-group sles-ha-rg \
-    --vm-name nw1-cl-0 \
-    --name customScript \
-    --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/SAP-ASCS-ERS/main/softlinks.sh"],"commandToExecute": "./softlinks.sh"}' 
 
 
 # Create managed disk
@@ -72,6 +64,13 @@ az vm disk attach --resource-group sles-ha-rg --vm nw1-cl-0 --name SBD-DISK1 --l
 # Attach disk to VM2
 az vm disk attach --resource-group sles-ha-rg --vm nw1-cl-1 --name SBD-DISK1 --lun 0
 
+
+az vm extension set \
+    --resource-group sles-ha-rg \
+    --vm-name nw1-cl-0 \
+    --name customScript \
+    --publisher Microsoft.Azure.Extensions \
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/SAP-ASCS-ERS/main/softlinks.sh"],"commandToExecute": "./softlinks.sh"}' 
 
 az vm extension set \
     --resource-group sles-ha-rg \
