@@ -8,9 +8,9 @@ DiskName="SBD-disk1"
 ShareNodes=2
 SkuName="Premium_LRS"
 
-az vm create --name nw1-cl1-0 --resource-group sles-ha-rg --attach-os-disk /subscriptions/152eb83a-1242-4c87-9b30-668a34d57eae/resourcegroups/sles-ha-rg-lab/providers/Microsoft.Compute/disks/nw1-cl1-0-osdisk --os-type linux --location EastUS --vnet-name havnet --subnet hasubnet --private-ip-address 10.0.0.8 --public-ip-sku Standard
+az vm create --name nw1-cl-0 --resource-group sles-ha-rg --attach-os-disk /subscriptions/152eb83a-1242-4c87-9b30-668a34d57eae/resourcegroups/sles-ha-rg-lab/providers/Microsoft.Compute/disks/nw1-cl1-0-osdisk --os-type linux --location EastUS --vnet-name havnet --subnet hasubnet --private-ip-address 10.0.0.8 --public-ip-sku Standard
 
-az vm create --name nw1-cl1-1 --resource-group sles-ha-rg --attach-os-disk /subscriptions/152eb83a-1242-4c87-9b30-668a34d57eae/resourcegroups/sles-ha-rg-lab/providers/Microsoft.Compute/disks/nw1-cl1-1-OSdisk --os-type linux --location EastUS --vnet-name havnet --subnet hasubnet --private-ip-address 10.0.0.9 --public-ip-sku Standard
+az vm create --name nw1-cl-1 --resource-group sles-ha-rg --attach-os-disk /subscriptions/152eb83a-1242-4c87-9b30-668a34d57eae/resourcegroups/sles-ha-rg-lab/providers/Microsoft.Compute/disks/nw1-cl1-1-OSdisk --os-type linux --location EastUS --vnet-name havnet --subnet hasubnet --private-ip-address 10.0.0.9 --public-ip-sku Standard
 
 
 
@@ -22,16 +22,16 @@ az network lb probe create -g sles-ha-rg --lb-name SAP-LB  -n ASCS-HP --protocol
 az network lb probe create -g sles-ha-rg --lb-name SAP-LB  -n ERS-HP --protocol tcp --port 62102
 
 
-nic1name1=`az vm show -g sles-ha-rg -n nw1-cl1-0  --query networkProfile.networkInterfaces[].id -o tsv | cut -d / -f 9`
+nic1name1=`az vm show -g sles-ha-rg -n nw1-cl-0  --query networkProfile.networkInterfaces[].id -o tsv | cut -d / -f 9`
 
 
-az network nic ip-config address-pool add --address-pool sap-bp  --ip-config-name ipconfignw1-cl1-0 --nic-name $nic1name1 -g sles-ha-rg --lb-name SAP-LB
+az network nic ip-config address-pool add --address-pool sap-bp  --ip-config-name ipconfignw1-cl-0 --nic-name $nic1name1 -g sles-ha-rg --lb-name SAP-LB
 
 
-nic1name2=`az vm show -g sles-ha-rg -n nw1-cl1-1  --query networkProfile.networkInterfaces[].id -o tsv | cut -d / -f 9`
+nic1name2=`az vm show -g sles-ha-rg -n nw1-cl-1  --query networkProfile.networkInterfaces[].id -o tsv | cut -d / -f 9`
 
 
-az network nic ip-config address-pool add --address-pool sap-bp  --ip-config-name ipconfignw1-cl1-1 --nic-name $nic1name2 -g sles-ha-rg --lb-name SAP-LB
+az network nic ip-config address-pool add --address-pool sap-bp  --ip-config-name ipconfignw1-cl-1 --nic-name $nic1name2 -g sles-ha-rg --lb-name SAP-LB
 
 
 az network lb rule create -g sles-ha-rg  --lb-name SAP-LB  -n ASCS-lbrule --protocol All --frontend-ip-name nw1-ascs --frontend-port 0 --backend-pool-name sap-bp --backend-port 0 --probe-name ASCS-HP  --floating-ip true --idle-timeout 30
@@ -59,15 +59,11 @@ az vm extension set \
 # Create managed disk
 az disk create --resource-group $ResourceGroup --name $DiskName --location $Location --sku $SkuName --size-gb $DiskSizeInGB --max-shares $ShareNodes --query id --output tsv
 
-# Get VM IDs
-VM1=$(az vm list -g $ResourceGroup --query "[?name=='nw1-cl1-0'].id" -o tsv)
-VM2=$(az vm list -g $ResourceGroup --query "[?name=='nw1-cl1-1'].id" -o tsv)
-
 # Attach disk to VM1
-az vm disk attach --resource-group $ResourceGroup --vm $VM1 --name $DiskName --lun 0 --disk $DiskName
+az vm disk attach --resource-group sles-ha-rg --vm nw1-cl-0 --name SBD-DISK1 --lun 0
 
 # Attach disk to VM2
-az vm disk attach --resource-group $ResourceGroup --vm $VM2 --name $DiskName --lun 0 --disk $DiskName
+az vm disk attach --resource-group sles-ha-rg --vm nw1-cl-1 --name SBD-DISK1 --lun 0
 
 
 az vm extension set \
@@ -79,7 +75,7 @@ az vm extension set \
 
 az vm extension set \
     --resource-group sles-ha-rg \
-    --vm-name nw1-cl-2 \
+    --vm-name nw1-cl-1 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
     --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/SAP-ASCS-ERS/main/shareddisk2.sh"],"commandToExecute": "./shareddisk2.sh"}' 
