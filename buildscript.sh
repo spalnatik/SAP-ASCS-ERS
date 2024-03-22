@@ -8,9 +8,16 @@ DiskName="SBD-disk1"
 ShareNodes=2
 SkuName="Premium_LRS"
 
-az vm create --name nw1-cl-0 --resource-group sles-ha-rg --attach-os-disk /subscriptions/152eb83a-1242-4c87-9b30-668a34d57eae/resourcegroups/sles-ha-rg-lab/providers/Microsoft.Compute/disks/nw1-cl1-0-osdisk --os-type linux --location EastUS --vnet-name havnet --subnet hasubnet --private-ip-address 10.0.0.8 --public-ip-sku Standard
 
-az vm create --name nw1-cl-1 --resource-group sles-ha-rg --attach-os-disk /subscriptions/152eb83a-1242-4c87-9b30-668a34d57eae/resourcegroups/sles-ha-rg-lab/providers/Microsoft.Compute/disks/nw1-cl1-1-OSdisk --os-type linux --location EastUS --vnet-name havnet --subnet hasubnet --private-ip-address 10.0.0.9 --public-ip-sku Standard
+
+
+az disk create --resource-group sles-ha-rg --name nw1-cl1-0-osdisk --source /subscriptions/152eb83a-1242-4c87-9b30-668a34d57eae/resourceGroups/sles-ha-rg-lab/providers/Microsoft.Compute/snapshots/nw1-cl1-0-ss --query id --output tsv
+az disk create --resource-group sles-ha-rg --name nw1-cl1-1-OSdisk --source /subscriptions/152eb83a-1242-4c87-9b30-668a34d57eae/resourceGroups/sles-ha-rg-lab/providers/Microsoft.Compute/snapshots/nw1-cl1-1-Snapshot --query id --output tsv
+
+
+az vm create --name nw1-cl-0 --resource-group sles-ha-rg --attach-os-disk nw1-cl1-0-osdisk --os-type linux --location EastUS --vnet-name havnet --subnet hasubnet --private-ip-address 10.0.0.8 --public-ip-sku Standard
+
+az vm create --name nw1-cl-1 --resource-group sles-ha-rg --attach-os-disk nw1-cl1-1-OSdisk --os-type linux --location EastUS --vnet-name havnet --subnet hasubnet --private-ip-address 10.0.0.9 --public-ip-sku Standard
 
 
 
