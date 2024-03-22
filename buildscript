@@ -68,3 +68,18 @@ az vm disk attach --resource-group $ResourceGroup --vm $VM1 --name $DiskName --l
 
 # Attach disk to VM2
 az vm disk attach --resource-group $ResourceGroup --vm $VM2 --name $DiskName --lun 0 --disk $DiskName
+
+
+az vm extension set \
+    --resource-group sles-ha-rg \
+    --vm-name nw1-cl-0 \
+    --name customScript \
+    --publisher Microsoft.Azure.Extensions \
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/SAP-ASCS-ERS/main/shareddisk.sh"],"commandToExecute": "./shareddisk.sh"}' 
+
+az vm extension set \
+    --resource-group sles-ha-rg \
+    --vm-name nw1-cl-2 \
+    --name customScript \
+    --publisher Microsoft.Azure.Extensions \
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/SAP-ASCS-ERS/main/shareddisk2.sh"],"commandToExecute": "./shareddisk2.sh"}' 
